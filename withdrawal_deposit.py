@@ -1,62 +1,61 @@
 class Person:
-     def __init__(self, f_name, l_name):
-          self.f_name = str
-          self.l_name = str
-          self.name = f"{self.f_name} {self.l_name}"
+    def __init__(self, first_name, last_name):
+        self._first_name = first_name
+        self._last_name = last_name
+
+    @property
+    def full_name(self):
+        return f"{self._first_name} {self._last_name}"
+
 
 class Account:
-    "A class containing all accounts and methods for giving loans, depositing, & withdrawing money into accounts"
-    def __init__(self, person: Person):
-         self.balance = 0
-         self.person = person
+    def __init__(self, person):
+        self._person = person
+        self._balance = 0
 
-    def withdraw(self, amt: int):
-        print(f"{self.person.name}, Your current balance is: {self.balance}\n\n")
-        
-        try:
-            amt = int(input("Please enter the amount you wish to withdraw: "))
-            if self.balance > amt > 0:
-                self.balance = amt - self.balance
-                confirm = chr(input(f"You are requesting to withdraw { amt}, is that correct? (Y/N): "))
-                if confirm.capitalize() == "Y":
-                    print(f"Your new self.balance is: {self.balance}. Thank you.")
-            elif self.balance <= 0 < amt:
-                print(f"You are unable to withdraw money with no money or debt. Request denied.")
-            elif amt > self.balance > 0:
-                print("You are unable to withdraw more than you current self.balance. Request denied.")
-            else:
-                print(f"I'm sorry, We cannot process your withdrawal request.")
-        except TypeError: 
-            print("We're sorry, you are unable to withdraw this amount.")
+    def withdraw(self, amount):
+        if amount > 0 and self._balance >= amount:
+            self._balance -= amount
+            return True
+        else:
+            return False
 
-    def deposit(self, amt: int):
-        print(f"Your current self.balance is: {self.balance}")
-        try:
-            amt = int(input("Please enter the amount that you wish to deposit: "))
-            if amt > 0:
-                    confirm = chr(input(f"You are requesting to deposit {amt}, is that correct? (Y/N): "))
-                    if confirm.capitalize() == "Y":
-                        self.balance += amt
-                        print(f"Your new self.balance is: {self.balance}. Thank you.")
-                    elif confirm.capitalize() == "N":
-                         print("Your request has been cancelled")
-            elif amt < 0:
-                    print(f"You are unable to deposit values less than zero. Request denied.")
-            else:
-                    print(f"I'm sorry, We cannot process your deposit request.")
-        except TypeError:
-            print("We're sorry, you are unable to deposit this amount.")
+    def deposit(self, amount):
+        if amount > 0:
+            self._balance += amount
+            return True
+        else:
+            return False
+
+    @property
+    def balance(self):
+        return self._balance
+
+    @property
+    def person_name(self):
+        return self._person.full_name
 
 
 class Bank:
-    "A class that makes bank accounts out of the information of the Person class"
     def __init__(self):
-        self.accounts: {str: Account} = []
+        self.accounts = {}  # Create an empty dictionary to store accounts
 
-    def get_account(self, account_holder_name: str):
-        return self.accounts[account_holder_name.lower()]
+    def get_account(self, account_holder_name):
+        return self.accounts.get(account_holder_name.lower(), "Account not found")
 
-    def create_account(self, person: Person, ):
-          account = Account(person)
-          self.accounts[person.name.lower()] = account
-person1 = Bank.create_account(Person("Bryce", "Bland"))
+    def create_account(self, first_name, last_name):
+        person = Person(first_name, last_name)  # Create a Person object
+        account = Account(person)  # Create an Account object with the person
+        self.accounts[person.full_name.lower()] = account  # Add account to the dictionary with the person's name as key
+
+
+bank = Bank()  # Create a Bank object
+person_name = input("Please enter your first and last name: ")
+bank.create_account("Bryce", "Bland")  # Create an account for a person with the given name
+account = bank.get_account(person_name)
+if account:
+    print(f"Account found for {person_name}: Balance - {account.balance}")
+else:
+    print("Account not found")
+
+
